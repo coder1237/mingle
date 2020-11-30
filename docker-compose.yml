@@ -1,0 +1,51 @@
+version: '3'
+services:
+
+ # Server: Nginx
+ mingle_nginx_service:
+   restart: always
+   container_name: mingle_nginx_container
+   build:
+    context: ./docker/nginx
+    dockerfile: Dockerfile
+   depends_on:
+     - mingle_php_service
+     - mingle_redis_service
+   links:
+     - mingle_php_service
+     - mingle_redis_service
+   volumes:
+     - ./:/var/www/mingle
+   ports:
+     - "8009:80"
+
+ # Language: PHP
+ mingle_php_service:
+   container_name: mingle_php_container
+   build:
+    context: ./docker/php
+    dockerfile: Dockerfile
+   volumes:
+     - ./:/var/www/mingle
+   working_dir: /var/www/mingle
+
+ # Database: Mysql
+ mingle_mysql_service:
+   container_name: mingle_mysql_container
+   build:
+    context: ./docker/mysql
+    dockerfile: Dockerfile
+   ports:
+      - "33069:3306"
+
+ # Cache: Redis
+ mingle_redis_service:
+   container_name: mingle_redis_container
+   build:
+    context: ./docker/redis
+    dockerfile: Dockerfile
+   ports:
+    - "63799:6379"
+
+volumes:
+ dbdata:
